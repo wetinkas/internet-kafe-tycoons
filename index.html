@@ -3,18 +3,16 @@
 <head>
 <meta name="google-site-verification" content="rzsJg_bwu4iYTGaHexyrv5XAoZArGc-i7cUFWcloOLw" />
 <meta charset="UTF-8">
-
 <title>İnternet Kafe Tycoon Oyunu | Ücretsiz Tarayıcı Oyunu</title>
-
 <meta name="description" content="İnternet Kafe Tycoon, tarayıcıdan oynanan ücretsiz bir internet kafe işletme oyunudur. 1-2-3-4 saat ve sınırsız internet sat, müşterileri memnun et, 1000 TL kazan ve oyunu bitir.">
 <meta name="keywords" content="internet kafe oyunu, tycoon oyunu, tarayıcı oyunu, işletme oyunu">
 <meta name="author" content="Metin">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
 body{
     margin:0;
-    height:100vh;
+    min-height:100vh;
     background:#0b0f14;
     font-family:Arial, sans-serif;
     display:flex;
@@ -26,7 +24,8 @@ body{
 
 .game{
     background:#121826;
-    width:380px;
+    width:90%;
+    max-width:400px;
     padding:20px;
     border-radius:15px;
     box-shadow:0 0 25px rgba(0,255,255,0.15);
@@ -34,12 +33,12 @@ body{
     z-index:2;
 }
 
-h1{ color:#38bdf8; }
+h1{ color:#38bdf8; font-size:1.8rem; }
 
 .stats{
     display:flex;
     justify-content:space-between;
-    font-size:14px;
+    font-size:1rem;
 }
 
 .day{
@@ -52,7 +51,7 @@ h1{ color:#38bdf8; }
     padding:10px;
     border-radius:10px;
     margin:10px 0;
-    font-size:14px;
+    font-size:0.9rem;
 }
 
 .discount{
@@ -66,31 +65,34 @@ h1{ color:#38bdf8; }
 }
 
 .timer{
-    font-size:18px;
+    font-size:1.2rem;
     color:#facc15;
 }
 
-.customer{ margin:10px 0; }
+.customer{ margin:10px 0; font-size:1rem; }
 
 input{
     width:100%;
-    padding:10px;
+    padding:12px;
     border-radius:8px;
     border:none;
     outline:none;
     text-align:center;
-    font-size:16px;
+    font-size:1rem;
+    margin-top:5px;
+    touch-action: manipulation;
 }
 
 button{
     width:100%;
     margin-top:8px;
-    padding:10px;
+    padding:12px;
     border:none;
     border-radius:8px;
-    font-size:16px;
+    font-size:1rem;
     background:#22c55e;
     cursor:pointer;
+    touch-action: manipulation;
 }
 
 .correct{ background:#22c55e !important; }
@@ -106,11 +108,12 @@ button{
     align-items:center;
     flex-direction:column;
     z-index:5;
+    padding:10px;
 }
 
 .win-text{
     color:#22c55e;
-    font-size:40px;
+    font-size:2rem;
     font-weight:bold;
     text-shadow:0 0 20px #22c55e;
     animation:pulse 1s infinite;
@@ -137,6 +140,16 @@ button{
         transform:translateY(110vh) rotate(360deg);
         opacity:0;
     }
+}
+
+/* 🔹 RESPONSİVE AYARLAR */
+@media (max-width:400px){
+    h1{ font-size:1.5rem; }
+    .stats{ font-size:0.85rem; }
+    .prices{ font-size:0.8rem; }
+    .timer{ font-size:1rem; }
+    .customer{ font-size:0.9rem; }
+    input, button{ font-size:0.9rem; padding:10px; }
 }
 </style>
 </head>
@@ -200,8 +213,8 @@ function updatePrices(){
     };
 
     if(discount){
-        for(let k in prices){ prices[k]=Math.round(prices[k]*0.8); }
         priceBox.classList.add("discount");
+        for(let k in prices){ prices[k]=Math.round(prices[k]*0.8); }
     }else{
         priceBox.classList.remove("discount");
     }
@@ -218,7 +231,7 @@ function newCustomer(){
     time=5;
     timeEl.innerText=time;
 
-    let list=[
+    const list=[
         {t:"1 saat internet",p:prices[1]},
         {t:"2 saat internet",p:prices[2]},
         {t:"3 saat internet",p:prices[3]},
@@ -226,7 +239,7 @@ function newCustomer(){
         {t:"Sınırsız internet",p:prices.s}
     ];
 
-    let c=list[Math.floor(Math.random()*list.length)];
+    const c=list[Math.floor(Math.random()*list.length)];
     correctPrice=c.p;
     customer.innerText="🧍 Müşteri: "+c.t;
 
@@ -290,7 +303,7 @@ function winGame(){
 
 function launchConfetti(){
     for(let i=0;i<150;i++){
-        let c=document.createElement("div");
+        const c=document.createElement("div");
         c.className="confetti";
         c.style.left=Math.random()*100+"vw";
         c.style.background=`hsl(${Math.random()*360},100%,50%)`;
@@ -304,6 +317,8 @@ const moneyEl=document.getElementById("money");
 const lifeEl=document.getElementById("life");
 const dayEl=document.getElementById("day");
 const timeEl=document.getElementById("time");
+const priceBox=document.getElementById("priceBox");
+const price=document.getElementById("price");
 
 document.getElementById("price").addEventListener("keydown",e=>{
     if(e.key==="Enter") check();
