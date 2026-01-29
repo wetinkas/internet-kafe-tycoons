@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>İnternet Kafe Tycoon Oyunu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    background:#0b0f14;
+    font-family:Arial, sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    overflow:hidden;
+}
+
+.game{
+    background:#121826;
+    width:380px;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 25px rgba(0,255,255,0.15);
+    text-align:center;
+    z-index:2;
+}
+
+h1{ color:#38bdf8; }
+
+.stats{
+    display:flex;
+    justify-content:space-between;
+}
+
+.day{ color:#facc15; margin:8px 0; }
+
+.prices{
+    background:#0f172a;
+    padding:10px;
+    border-radius:10px;
+    margin:10px 0;
+}
+
+.discount{
+    border:2px solid #22c55e;
+    animation:glow 1s infinite alternate;
+}
+
+@keyframes glow{
+    from{box-shadow:0 0 5px #22c55e;}
+    to{box-shadow:0 0 20px #22c55e;}
+}
+
+.timer{ color:#facc15; font-size:18px; }
+
+input, button{
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    border-radius:8px;
+    border:none;
+    font-size:16px;
+}
+
+button{
+    background:#22c55e;
+    cursor:pointer;
+}
+
+.correct{ background:#22c55e; }
+.wrong{ background:#ef4444; color:white; }
+
+/* 🎉 KAZANMA EKRANI */
+.win-screen{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.9);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index:10;
+}
+
+.win-text{
+    font-size:40px;
+    color:#22c55e;
+    margin-bottom:20px;
+    animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+    100%{transform:scale(1);}
+}
+
+.restart-btn{
+    padding:12px 25px;
+    font-size:18px;
+    border-radius:10px;
+    background:#38bdf8;
+    cursor:pointer;
+}
+
+/* 🎊 KONFETİ */
+.confetti{
+    position:absolute;
+    width:10px;
+    height:10px;
+    top:-10px;
+    animation:fall linear forwards;
+}
+
+@keyframes fall{
+    to{
+        transform:translateY(110vh) rotate(360deg);
+        opacity:0;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+<h1>💻 İnternet Kafe Tycoon</h1>
+
+<div class="stats">
+    <div>💰 <span id="money">0</span> TL</div>
+    <div>❤️ <span id="life">3</span></div>
+</div>
+
+<div class="day">📅 Gün: <span id="day">1</span></div>
+
+<div class="prices" id="priceBox">
+1 Saat → <span id="p1"></span> TL<br>
+2 Saat → <span id="p2"></span> TL<br>
+3 Saat → <span id="p3"></span> TL<br>
+4 Saat → <span id="p4"></span> TL<br>
+Sınırsız → <span id="ps"></span> TL
+</div>
+
+<div class="timer">⏱ <span id="time">5</span> sn</div>
+<div id="customer">Müşteri geliyor...</div>
+
+<input type="number" id="price" placeholder="Kaç TL?">
+<button onclick="check()">Onayla</button>
+</div>
+
+<!-- 🎉 KAZANMA -->
+<div class="win-screen" id="winScreen">
+    <div class="win-text">🎉 KAZANDIN! 🎉</div>
+    <button class="restart-btn" onclick="playSoundAndRestart()">🔁 Tekrar Oyna</button>
+</div>
+
+<audio id="winSound">
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4f7f0c2f04.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+let money=0, life=3, day=1, time=5, timer, correctPrice=0;
+const base={1:30,2:50,3:70,4:90,s:120};
+let prices={};
+
+const moneyEl=money;
+function updatePrices(){
+    prices={
+        1:base[1]+day*5,
+        2:base[2]+day*5,
+        3:base[3]+day*5,
+        4:base[4]+day*5,
+        s:base.s+day*5
+    };
+    p1.innerText=prices[1];
+    p2.innerText=prices[2];
+    p3.innerText=prices[3];
+    p4.innerText=prices[4];
+    ps.innerText=prices.s;
+}
+
+function newCustomer(){
+    time=5;
+    timeEl.innerText=time;
+    const list=[
+        {t:"1 saat",p:prices[1]},
+        {t:"2 saat",p:prices[2]},
+        {t:"3 saat",p:prices[3]},
+        {t:"4 saat",p:prices[4]},
+        {t:"Sınırsız",p:prices.s}
+    ];
+    const c=list[Math.floor(Math.random()*list.length)];
+    correctPrice=c.p;
+    customer.innerText="🧍 "+c.t+" internet";
+    clearInterval(timer);
+    timer=setInterval(()=>{
+        time--;
+        timeEl.innerText=time;
+        if(time===0){
+            life--;
+            update();
+            next();
+        }
+    },1000);
+}
+
+function check(){
+    clearInterval(timer);
+    if(+price.value===correctPrice){
+        money+=correctPrice;
+    }else{
+        life--;
+    }
+    update();
+    if(money>=1000){
+        winGame();
+    }else{
+        next();
+    }
+}
+
+function next(){
+    if(life<=0){
+        alert("Oyun Bitti!");
+        location.reload();
+        return;
+    }
+    day++;
+    updatePrices();
+    newCustomer();
+}
+
+function update(){
+    document.getElementById("money").innerText=money;
+    document.getElementById("life").innerText=life;
+    document.getElementById("day").innerText=day;
+}
+
+function winGame(){
+    document.getElementById("winScreen").style.display="flex";
+    launchConfetti();
+}
+
+function playSoundAndRestart(){
+    const s=document.getElementById("winSound");
+    s.currentTime=0;
+    s.play();
+    setTimeout(()=>location.reload(),800);
+}
+
+function launchConfetti(){
+    for(let i=0;i<150;i++){
+        let c=document.createElement("div");
+        c.className="confetti";
+        c.style.left=Math.random()*100+"vw";
+        c.style.background=`hsl(${Math.random()*360},100%,50%)`;
+        c.style.animationDuration=2+Math.random()*3+"s";
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(),5000);
+    }
+}
+
+updatePrices();
+newCustomer();
+</script>
+
+</body>
+</html>
