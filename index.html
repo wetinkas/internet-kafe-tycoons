@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta name="google-site-verification" content="rzsJg_bwu4iYTGaHexyrv5XAoZArGc-i7cUFWcloOLw" />
 <meta charset="UTF-8">
-<title>İnternet Kafe Tycoon Oyunu | Ücretsiz Tarayıcı Oyunu</title>
-<meta name="description" content="İnternet Kafe Tycoon, tarayıcıdan oynanan ücretsiz bir internet kafe işletme oyunudur. 1-2-3-4 saat ve sınırsız internet sat, müşterileri memnun et, 1000 TL kazan ve oyunu bitir.">
-<meta name="keywords" content="internet kafe oyunu, tycoon oyunu, tarayıcı oyunu, işletme oyunu">
-<meta name="author" content="Metin">
+<title>İnternet Kafe Tycoon | Mobil Uyumlu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
 <style>
-body{
+html, body{
     margin:0;
-    min-height:100vh;
+    padding:0;
+    width:100%;
+    height:100%;
     background:#0b0f14;
     font-family:Arial, sans-serif;
     display:flex;
@@ -24,7 +21,7 @@ body{
 
 .game{
     background:#121826;
-    width:90%;
+    width:95%;
     max-width:400px;
     padding:20px;
     border-radius:15px;
@@ -33,12 +30,13 @@ body{
     z-index:2;
 }
 
-h1{ color:#38bdf8; font-size:1.8rem; }
+h1{ color:#38bdf8; font-size:2rem; }
 
 .stats{
     display:flex;
     justify-content:space-between;
     font-size:1rem;
+    flex-wrap:wrap;
 }
 
 .day{
@@ -69,30 +67,25 @@ h1{ color:#38bdf8; font-size:1.8rem; }
     color:#facc15;
 }
 
-.customer{ margin:10px 0; font-size:1rem; }
+.customer{
+    margin:10px 0;
+    font-size:1rem;
+}
 
-input{
+input, button{
     width:100%;
-    padding:12px;
-    border-radius:8px;
+    padding:14px;
+    border-radius:10px;
     border:none;
     outline:none;
-    text-align:center;
     font-size:1rem;
     margin-top:5px;
     touch-action: manipulation;
 }
 
 button{
-    width:100%;
-    margin-top:8px;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    font-size:1rem;
     background:#22c55e;
     cursor:pointer;
-    touch-action: manipulation;
 }
 
 .correct{ background:#22c55e !important; }
@@ -113,15 +106,16 @@ button{
 
 .win-text{
     color:#22c55e;
-    font-size:2rem;
+    font-size:3rem;
     font-weight:bold;
-    text-shadow:0 0 20px #22c55e;
+    text-shadow:0 0 30px #22c55e;
     animation:pulse 1s infinite;
+    text-align:center;
 }
 
 @keyframes pulse{
     0%{ transform:scale(1); }
-    50%{ transform:scale(1.1); }
+    50%{ transform:scale(1.2); }
     100%{ transform:scale(1); }
 }
 
@@ -142,14 +136,15 @@ button{
     }
 }
 
-/* 🔹 RESPONSİVE AYARLAR */
+/* RESPONSİVE */
 @media (max-width:400px){
-    h1{ font-size:1.5rem; }
+    h1{ font-size:1.7rem; }
     .stats{ font-size:0.85rem; }
     .prices{ font-size:0.8rem; }
     .timer{ font-size:1rem; }
     .customer{ font-size:0.9rem; }
-    input, button{ font-size:0.9rem; padding:10px; }
+    input, button{ font-size:1rem; padding:12px; }
+    .win-text{ font-size:2.5rem; }
 }
 </style>
 </head>
@@ -183,9 +178,8 @@ Sınırsız → <span id="ps"></span> TL
 <button onclick="check()">Onayla</button>
 </div>
 
-<!-- 🎉 KAZANMA -->
 <div class="win-screen" id="winScreen">
-    <div class="win-text">🎉 TEBRİKLER! KAZANDIN 🎉</div>
+    <div class="win-text">🎉TEBRİKLER! KAZANDIN🎉</div>
 </div>
 
 <audio id="winSound">
@@ -199,6 +193,13 @@ let correctPrice=0;
 
 const base={1:30,2:50,3:70,4:90,s:120};
 let prices={};
+
+const moneyEl=document.getElementById("money");
+const lifeEl=document.getElementById("life");
+const dayEl=document.getElementById("day");
+const timeEl=document.getElementById("time");
+const priceBox=document.getElementById("priceBox");
+const price=document.getElementById("price");
 
 function updatePrices(){
     let multiplier=1+(day-1)*0.1;
@@ -313,13 +314,6 @@ function launchConfetti(){
     }
 }
 
-const moneyEl=document.getElementById("money");
-const lifeEl=document.getElementById("life");
-const dayEl=document.getElementById("day");
-const timeEl=document.getElementById("time");
-const priceBox=document.getElementById("priceBox");
-const price=document.getElementById("price");
-
 document.getElementById("price").addEventListener("keydown",e=>{
     if(e.key==="Enter") check();
 });
@@ -327,6 +321,5 @@ document.getElementById("price").addEventListener("keydown",e=>{
 updatePrices();
 newCustomer();
 </script>
-
 </body>
 </html>
