@@ -136,7 +136,7 @@ button{
     }
 }
 
-/* RESPONSİVE */
+/* 🔹 RESPONSİVE */
 @media (max-width:400px){
     h1{ font-size:1.7rem; }
     .stats{ font-size:0.85rem; }
@@ -154,6 +154,11 @@ button{
 <div class="game" id="game">
 <h1>💻 İnternet Kafe Tycoon</h1>
 
+<div id="startScreen">
+    <button onclick="startGame()">🎮 Oyuna Başla</button>
+</div>
+
+<div id="gameContent" style="display:none;">
 <div class="stats">
     <div>💰 <span id="money">0</span> TL</div>
     <div>❤️ <span id="life">3</span></div>
@@ -177,9 +182,10 @@ Sınırsız → <span id="ps"></span> TL
 <input type="number" id="price" placeholder="Kaç TL?">
 <button onclick="check()">Onayla</button>
 </div>
+</div>
 
 <div class="win-screen" id="winScreen">
-    <div class="win-text">🎉TEBRİKLER! KAZANDIN🎉</div>
+    <div class="win-text">🎉 TEBRİKLER! KAZANDIN 🎉</div>
 </div>
 
 <audio id="winSound">
@@ -190,6 +196,7 @@ Sınırsız → <span id="ps"></span> TL
 let money=0, life=3, day=1;
 let time=5, timer;
 let correctPrice=0;
+let gameStarted=false;
 
 const base={1:30,2:50,3:70,4:90,s:120};
 let prices={};
@@ -200,6 +207,8 @@ const dayEl=document.getElementById("day");
 const timeEl=document.getElementById("time");
 const priceBox=document.getElementById("priceBox");
 const price=document.getElementById("price");
+const startScreen=document.getElementById("startScreen");
+const gameContent=document.getElementById("gameContent");
 
 function updatePrices(){
     let multiplier=1+(day-1)*0.1;
@@ -227,7 +236,16 @@ function updatePrices(){
     ps.innerText=prices.s;
 }
 
+function startGame(){
+    startScreen.style.display="none";
+    gameContent.style.display="block";
+    gameStarted=true;
+    updatePrices();
+    newCustomer();
+}
+
 function newCustomer(){
+    if(!gameStarted) return;
     clearInterval(timer);
     time=5;
     timeEl.innerText=time;
@@ -259,6 +277,7 @@ function newCustomer(){
 }
 
 function check(){
+    if(!gameStarted) return;
     clearInterval(timer);
     if(Number(price.value)===correctPrice){
         money+=correctPrice;
@@ -317,9 +336,7 @@ function launchConfetti(){
 document.getElementById("price").addEventListener("keydown",e=>{
     if(e.key==="Enter") check();
 });
-
-updatePrices();
-newCustomer();
 </script>
 </body>
 </html>
+
