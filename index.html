@@ -2,7 +2,12 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>İnternet Kafe Tycoon Oyunu</title>
+
+<title>İnternet Kafe Tycoon Oyunu | Ücretsiz Tarayıcı Oyunu</title>
+
+<meta name="description" content="İnternet Kafe Tycoon, tarayıcıdan oynanan ücretsiz bir internet kafe işletme oyunudur. 1-2-3-4 saat ve sınırsız internet sat, müşterileri memnun et, 1000 TL kazan ve oyunu bitir.">
+<meta name="keywords" content="internet kafe oyunu, tycoon oyunu, tarayıcı oyunu, işletme oyunu">
+<meta name="author" content="Metin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -33,77 +38,87 @@ h1{ color:#38bdf8; }
 .stats{
     display:flex;
     justify-content:space-between;
+    font-size:14px;
 }
 
-.day{ color:#facc15; margin:8px 0; }
+.day{
+    margin:8px 0;
+    color:#facc15;
+}
 
 .prices{
     background:#0f172a;
     padding:10px;
     border-radius:10px;
     margin:10px 0;
+    font-size:14px;
 }
 
 .discount{
     border:2px solid #22c55e;
-    animation:glow 1s infinite alternate;
+    animation: glow 1s infinite alternate;
 }
 
 @keyframes glow{
-    from{box-shadow:0 0 5px #22c55e;}
-    to{box-shadow:0 0 20px #22c55e;}
+    from{ box-shadow:0 0 5px #22c55e; }
+    to{ box-shadow:0 0 20px #22c55e; }
 }
 
-timer{.color:#facc15; font-size:18px;}
+.timer{
+    font-size:18px;
+    color:#facc15;
+}
 
-input, button{
+.customer{ margin:10px 0; }
+
+input{
     width:100%;
     padding:10px;
-    margin-top:8px;
     border-radius:8px;
     border:none;
+    outline:none;
+    text-align:center;
     font-size:16px;
 }
 
 button{
+    width:100%;
+    margin-top:8px;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
     background:#22c55e;
     cursor:pointer;
 }
 
-.correct{ background:#22c55e; }
-.wrong{ background:#ef4444; color:white; }
+.correct{ background:#22c55e !important; }
+.wrong{ background:#ef4444 !important; color:white; }
 
 /* 🎉 KAZANMA EKRANI */
 .win-screen{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.9);
+    background:rgba(0,0,0,0.85);
     display:none;
     justify-content:center;
     align-items:center;
     flex-direction:column;
-    z-index:10;
+    z-index:5;
 }
 
 .win-text{
-    font-size:40px;
     color:#22c55e;
-    margin-bottom:20px;
+    font-size:40px;
+    font-weight:bold;
+    text-shadow:0 0 20px #22c55e;
     animation:pulse 1s infinite;
 }
 
 @keyframes pulse{
-    0%{transform:scale(1);}
-    50%{transform:scale(1.1);}
-    100%{transform:scale(1);}
-}
-
-.restart-btn{
-    padding:12px 25px;
-    font-size:18px;
-    border-radius:10px;
-    background:#38bdf8;
-    cursor:pointer;
+    0%{ transform:scale(1); }
+    50%{ transform:scale(1.1); }
+    100%{ transform:scale(1); }
 }
 
 /* 🎊 KONFETİ */
@@ -111,6 +126,7 @@ button{
     position:absolute;
     width:10px;
     height:10px;
+    background:red;
     top:-10px;
     animation:fall linear forwards;
 }
@@ -126,7 +142,7 @@ button{
 
 <body>
 
-<div class="game">
+<div class="game" id="game">
 <h1>💻 İnternet Kafe Tycoon</h1>
 
 <div class="stats">
@@ -137,6 +153,7 @@ button{
 <div class="day">📅 Gün: <span id="day">1</span></div>
 
 <div class="prices" id="priceBox">
+<b>📋 Fiyat Listesi</b><br>
 1 Saat → <span id="p1"></span> TL<br>
 2 Saat → <span id="p2"></span> TL<br>
 3 Saat → <span id="p3"></span> TL<br>
@@ -145,7 +162,8 @@ Sınırsız → <span id="ps"></span> TL
 </div>
 
 <div class="timer">⏱ <span id="time">5</span> sn</div>
-<div id="customer">Müşteri geliyor...</div>
+
+<div class="customer" id="customer">Müşteri geliyor...</div>
 
 <input type="number" id="price" placeholder="Kaç TL?">
 <button onclick="check()">Onayla</button>
@@ -153,28 +171,40 @@ Sınırsız → <span id="ps"></span> TL
 
 <!-- 🎉 KAZANMA -->
 <div class="win-screen" id="winScreen">
-    <div class="win-text">🎉 KAZANDIN! 🎉</div>
-    <button class="restart-btn" onclick="playSoundAndRestart()">🔁 Tekrar Oyna</button>
+    <div class="win-text">🎉 TEBRİKLER! KAZANDIN 🎉</div>
 </div>
 
 <audio id="winSound">
-<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4f7f0c2f04.mp3" type="audio/mpeg">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4f7f0c2f04.mp3?filename=success-1-6297.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-let money=0, life=3, day=1, time=5, timer, correctPrice=0;
+let money=0, life=3, day=1;
+let time=5, timer;
+let correctPrice=0;
+
 const base={1:30,2:50,3:70,4:90,s:120};
 let prices={};
 
-const moneyEl=money;
 function updatePrices(){
+    let multiplier=1+(day-1)*0.1;
+    let discount=Math.random()<0.25;
+
     prices={
-        1:base[1]+day*5,
-        2:base[2]+day*5,
-        3:base[3]+day*5,
-        4:base[4]+day*5,
-        s:base.s+day*5
+        1:Math.round(base[1]*multiplier),
+        2:Math.round(base[2]*multiplier),
+        3:Math.round(base[3]*multiplier),
+        4:Math.round(base[4]*multiplier),
+        s:Math.round(base.s*multiplier)
     };
+
+    if(discount){
+        for(let k in prices){ prices[k]=Math.round(prices[k]*0.8); }
+        priceBox.classList.add("discount");
+    }else{
+        priceBox.classList.remove("discount");
+    }
+
     p1.innerText=prices[1];
     p2.innerText=prices[2];
     p3.innerText=prices[3];
@@ -183,72 +213,78 @@ function updatePrices(){
 }
 
 function newCustomer(){
+    clearInterval(timer);
     time=5;
     timeEl.innerText=time;
-    const list=[
-        {t:"1 saat",p:prices[1]},
-        {t:"2 saat",p:prices[2]},
-        {t:"3 saat",p:prices[3]},
-        {t:"4 saat",p:prices[4]},
-        {t:"Sınırsız",p:prices.s}
+
+    let list=[
+        {t:"1 saat internet",p:prices[1]},
+        {t:"2 saat internet",p:prices[2]},
+        {t:"3 saat internet",p:prices[3]},
+        {t:"4 saat internet",p:prices[4]},
+        {t:"Sınırsız internet",p:prices.s}
     ];
-    const c=list[Math.floor(Math.random()*list.length)];
+
+    let c=list[Math.floor(Math.random()*list.length)];
     correctPrice=c.p;
-    customer.innerText="🧍 "+c.t+" internet";
-    clearInterval(timer);
+    customer.innerText="🧍 Müşteri: "+c.t;
+
+    price.value="";
+    price.focus();
+
     timer=setInterval(()=>{
         time--;
         timeEl.innerText=time;
         if(time===0){
             life--;
             update();
-            next();
+            life<=0 ? gameOver() : nextDay();
         }
     },1000);
 }
 
 function check(){
     clearInterval(timer);
-    if(+price.value===correctPrice){
+    if(Number(price.value)===correctPrice){
         money+=correctPrice;
+        price.className="correct";
     }else{
         life--;
+        price.className="wrong";
     }
+    setTimeout(()=>price.className="",300);
     update();
+
     if(money>=1000){
         winGame();
-    }else{
-        next();
-    }
-}
-
-function next(){
-    if(life<=0){
-        alert("Oyun Bitti!");
-        location.reload();
         return;
     }
+
+    life<=0 ? gameOver() : nextDay();
+}
+
+function nextDay(){
     day++;
     updatePrices();
+    update();
     newCustomer();
 }
 
 function update(){
-    document.getElementById("money").innerText=money;
-    document.getElementById("life").innerText=life;
-    document.getElementById("day").innerText=day;
+    moneyEl.innerText=money;
+    lifeEl.innerText=life;
+    dayEl.innerText=day;
+}
+
+function gameOver(){
+    alert("Oyun Bitti!\nKazanç: "+money+" TL");
+    location.reload();
 }
 
 function winGame(){
     document.getElementById("winScreen").style.display="flex";
+    document.getElementById("winSound").play();
     launchConfetti();
-}
-
-function playSoundAndRestart(){
-    const s=document.getElementById("winSound");
-    s.currentTime=0;
-    s.play();
-    setTimeout(()=>location.reload(),800);
 }
 
 function launchConfetti(){
@@ -262,6 +298,15 @@ function launchConfetti(){
         setTimeout(()=>c.remove(),5000);
     }
 }
+
+const moneyEl=document.getElementById("money");
+const lifeEl=document.getElementById("life");
+const dayEl=document.getElementById("day");
+const timeEl=document.getElementById("time");
+
+document.getElementById("price").addEventListener("keydown",e=>{
+    if(e.key==="Enter") check();
+});
 
 updatePrices();
 newCustomer();
